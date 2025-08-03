@@ -1,86 +1,143 @@
-// species.js - Defines all species and their properties
-// Contains a complete ecosystem with plants, herbivores, carnivores and apex predators
-// Parameters based on research of real ecosystems for stability
+/**
+ * SPECIES CONFIGURATION FILE
+ * -------------------------
+ * This file contains all species definitions and their properties that affect simulation behavior.
+ * Each parameter directly impacts how species interact within the ecosystem.
+ *
+ * PARAMETER GUIDE:
+ * ===============
+ * id:             Unique identifier for the species (required)
+ * name:           Display name for the species (required)
+ * emoji:          Visual representation in UI (required)
+ * color:          Color for graphs and UI elements (required)
+ * producer:       Boolean - true for plants, false for animals (required)
+ * diet:           Array of species IDs this species eats - empty for producers (required)
+ * eatRate:        Probability of successful feeding per tick (0-1) - higher means more successful hunting
+ * eatGain:        Energy gained per successful feeding - higher means more energy from each meal
+ * breedRate:      Probability of breeding per tick when above threshold (0-1) - higher means faster reproduction
+ * deathRate:      Probability of natural death per tick (0-1) - higher means shorter lifespan
+ * maxAge:         Maximum number of ticks before guaranteed death - higher means longer potential lifespan
+ * maxEnergy:      Maximum energy storage capacity - higher means better survival during food shortages
+ * metabolism:     Energy lost per tick (0-1) - higher means faster energy depletion
+ * breedThreshold: Minimum energy required to reproduce - higher means more selective breeding
+ * photoRate:      PLANTS ONLY - Energy gained from sunlight per tick - higher means faster energy production
+ * startPop:       Initial population when simulation begins - higher means more abundant at start
+ *
+ * ECOSYSTEM BALANCE TIPS:
+ * ======================
+ * - Increase deathRate or metabolism to control overpopulation
+ * - Balance predator eatRate/eatGain with prey breedRate to maintain stable populations
+ * - Ensure plants have appropriate photoRate to support the herbivore population
+ * - Adjust breedThreshold to make reproduction more or less selective
+ */
 
 export const Species = {
-  // Catalogue of all species
+  /**
+   * SPECIES CATALOGUE
+   * ================= 
+   * Contains all species definitions organized by trophic level:
+   * - PRODUCERS: Plants that convert sunlight to energy
+   * - PRIMARY CONSUMERS: Herbivores that eat only plants
+   * - SECONDARY CONSUMERS: Predators that eat herbivores
+   * - TERTIARY CONSUMERS: Apex predators at the top of the food chain
+   * 
+   * Adjust species parameters here to balance the ecosystem.
+   */
   _catalogue: {
-    // PRODUCERS (plants) - Base of the food chain
+    /** 
+     * PRODUCERS (plants) - Base of the food chain
+     * These convert sunlight directly into energy (biomass).
+     * Key balance factors: photoRate, breedRate, maxEnergy
+     */
     grass: {
-      id: 'grass',
-      name: 'Grass',
-      emoji: '🌿',
-      color: '#0f0',
-      producer: true,
-      diet: [],
-      eatRate: 0,
-      eatGain: 0,
-      breedRate: 0.35, // Fast growing, resilient
-      deathRate: 0.01,
-      maxAge: 400,
-      maxEnergy: 8,
-      metabolism: 0,
-      breedThreshold: 3,
-      photoRate: 0.5, // Medium energy gain from sunlight
-      startPop: 200, // Initial population
+      id: 'grass',      // Unique identifier used in code
+      name: 'Grass',    // Display name in UI
+      emoji: '🌿',      // Visual representation
+      color: '#0f0',    // Color for UI elements and graphs
+      producer: true,   // TRUE for plants that photosynthesize
+      diet: [],         // Empty for producers (plants don't eat)
+      eatRate: 0,       // Unused for producers
+      eatGain: 0,       // Unused for producers
+      breedRate: 0.35,  // CRITICAL: Chance to reproduce per tick - high value means fast spread (0.35 = 35% chance)
+      deathRate: 0.01,  // CRITICAL: Chance of dying per tick - low value means longer lifespan (0.01 = 1% chance)
+      maxAge: 400,      // CRITICAL: Maximum lifespan in ticks before guaranteed death
+      maxEnergy: 8,     // CRITICAL: Maximum energy storage - affects survival during low sunlight
+      metabolism: 0,    // Plants don't lose energy per tick (0 = no energy loss)
+      breedThreshold: 3,// CRITICAL: Minimum energy needed to reproduce - lower means easier breeding
+      photoRate: 0.5,   // CRITICAL: Energy gained from sunlight per tick - higher means faster growth
+      startPop: 200,    // Initial population when simulation starts
       description: 'Fast-growing ground cover that thrives in sunlight'
     },
     shrub: {
-      id: 'shrub',
-      name: 'Shrub',
-      emoji: '🌱',
-      color: '#0c0',
-      producer: true,
-      diet: [],
-      eatRate: 0,
-      eatGain: 0,
-      breedRate: 0.15, // Medium growth rate
-      deathRate: 0.008,
-      maxAge: 800,
-      maxEnergy: 15,
-      metabolism: 0,
-      breedThreshold: 6,
-      photoRate: 0.6, // Higher energy gain but slower breeding
-      startPop: 30,
+      id: 'shrub',      // Unique identifier used in code
+      name: 'Shrub',    // Display name in UI
+      emoji: '🌱',      // Visual representation
+      color: '#0c0',    // Color for UI elements and graphs
+      producer: true,   // TRUE for plants that photosynthesize
+      diet: [],         // Empty for producers (plants don't eat)
+      eatRate: 0,       // Unused for producers
+      eatGain: 0,       // Unused for producers
+      breedRate: 0.15,  // CRITICAL: Medium reproduction rate (0.15 = 15% chance per tick)
+      deathRate: 0.008, // CRITICAL: Very low death rate (more resilient than grass)
+      maxAge: 800,      // CRITICAL: Long lifespan (double that of grass)
+      maxEnergy: 15,    // CRITICAL: Higher energy storage than grass (survives longer without sunlight)
+      metabolism: 0,    // Plants don't lose energy per tick
+      breedThreshold: 6,// CRITICAL: Higher energy requirement to reproduce than grass (more selective)
+      photoRate: 0.6,   // CRITICAL: Higher energy production from sunlight than grass
+      startPop: 30,     // Initial population (much lower than grass)
       description: 'Woody plant that provides food and shelter for animals'
     },
     tree: {
-      id: 'tree',
-      name: 'Tree',
-      emoji: '🌳',
-      color: '#080',
-      producer: true,
-      diet: [],
-      eatRate: 0,
-      eatGain: 0,
-      breedRate: 0.05, // Slow growth rate
-      deathRate: 0.002,
-      maxAge: 2000,
-      maxEnergy: 30,
-      metabolism: 0,
-      breedThreshold: 15,
-      photoRate: 0.8, // Highest energy production
-      startPop: 10,
+      id: 'tree',       // Unique identifier used in code
+      name: 'Tree',     // Display name in UI
+      emoji: '🌳',      // Visual representation
+      color: '#080',    // Color for UI elements and graphs
+      producer: true,   // TRUE for plants that photosynthesize
+      diet: [],         // Empty for producers (plants don't eat)
+      eatRate: 0,       // Unused for producers
+      eatGain: 0,       // Unused for producers
+      breedRate: 0.05,  // CRITICAL: Very slow reproduction (0.05 = 5% chance per tick)
+      deathRate: 0.002, // CRITICAL: Extremely low death rate (very resilient)
+      maxAge: 2000,     // CRITICAL: Extremely long lifespan (5x longer than shrubs)
+      maxEnergy: 30,    // CRITICAL: Highest energy storage of all plants
+      metabolism: 0,    // Plants don't lose energy per tick
+      breedThreshold: 15,// CRITICAL: High energy requirement for reproduction (very selective)
+      photoRate: 0.8,   // CRITICAL: Highest energy production from sunlight
+      startPop: 10,     // Initial population (lowest of plants)
       description: 'Long-lived producer with high energy storage'
     },
     
-    // PRIMARY CONSUMERS (herbivores)
+    /** 
+     * PRIMARY CONSUMERS (herbivores)
+     * These feed directly on plants and convert plant energy into animal biomass.
+     * They form the critical link between producers and predators.
+     * 
+     * Key balance factors: 
+     * - eatRate & eatGain: Determine how effectively they convert plant energy
+     * - breedRate & breedThreshold: Control population growth
+     * - metabolism: Energy loss per tick (higher values require more food)
+     * 
+     * ECOSYSTEM EFFECTS:
+     * - Too many herbivores will deplete plant populations
+     * - Too few won't support predator populations
+     * - Check Population Health % in the insights panel to monitor their status
+     */
     insect: {
-      id: 'insect',
-      name: 'Insect',
-      emoji: '🐜',
-      color: '#f0f',
-      producer: false,
-      diet: ['grass', 'shrub'],
-      eatRate: 0.35,
-      eatGain: 2,
-      breedRate: 0.30, // Very fast reproduction
-      deathRate: 0.08,
-      maxAge: 80,
-      maxEnergy: 6,
-      metabolism: 0.4,
-      breedThreshold: 3,
-      startPop: 80,
+      id: 'insect',     // Unique identifier used in code
+      name: 'Insect',   // Display name in UI
+      emoji: '🐜',      // Visual representation
+      color: '#f0f',    // Color for UI elements and graphs
+      producer: false,  // FALSE for consumers (animals that eat other species)
+      diet: ['grass', 'shrub'], // CRITICAL: What this species can eat - directly affects survival
+      eatRate: 0.35,    // CRITICAL: High chance of successful feeding (35% chance per tick)
+      eatGain: 2,       // CRITICAL: Low energy gain per feeding (balance with high eatRate)
+      breedRate: 0.30,  // CRITICAL: Very high reproduction rate (30% chance when above threshold)
+      deathRate: 0.08,  // CRITICAL: High natural death rate (8% chance per tick)
+      maxAge: 80,       // CRITICAL: Very short lifespan in ticks
+      maxEnergy: 6,     // CRITICAL: Low energy storage capacity (dies quickly without food)
+      metabolism: 0.4,  // CRITICAL: High energy loss per tick (40% of 1 energy unit)
+      breedThreshold: 3,// CRITICAL: Low energy required to reproduce (breeds easily)
+      startPop: 80,     // Initial population (high to support predators)
       description: 'Fast-breeding invertebrates that consume plant matter'
     },
     grasshopper: {
@@ -102,21 +159,21 @@ export const Species = {
       description: 'Jumping insect that feeds primarily on grasses'
     },
     rabbit: {
-      id: 'rabbit',
-      name: 'Rabbit',
-      emoji: '🐰',
-      color: '#ccc',
-      producer: false,
-      diet: ['grass', 'shrub'],
-      eatRate: 0.20,
-      eatGain: 4,
-      breedRate: 0.15, // Fast breeding mammal
-      deathRate: 0.03,
-      maxAge: 300,
-      maxEnergy: 12,
-      metabolism: 0.5,
-      breedThreshold: 7,
-      startPop: 15,
+      id: 'rabbit',     // Unique identifier used in code
+      name: 'Rabbit',   // Display name in UI
+      emoji: '🐰',      // Visual representation
+      color: '#ccc',    // Color for UI elements and graphs
+      producer: false,  // FALSE for consumers (animals that eat other species)
+      diet: ['grass', 'shrub'], // CRITICAL: Multiple food sources increases survival chances
+      eatRate: 0.20,    // CRITICAL: Moderate feeding success rate (20% chance per tick)
+      eatGain: 4,       // CRITICAL: Higher energy gain per feeding than insects (balances lower eatRate)
+      breedRate: 0.15,  // CRITICAL: Fast breeding (15% chance when above threshold)
+      deathRate: 0.03,  // CRITICAL: Moderate natural death rate (3% chance per tick)
+      maxAge: 300,      // CRITICAL: Medium lifespan - lives longer than insects but shorter than predators
+      maxEnergy: 12,    // CRITICAL: Moderate energy storage (can survive longer without food than insects)
+      metabolism: 0.5,  // CRITICAL: High energy loss per tick (50% of 1 energy unit) - requires regular feeding
+      breedThreshold: 7,// CRITICAL: Moderate energy required to reproduce (more selective than insects)
+      startPop: 15,     // Initial population (balanced between insects and predators)
       description: 'Fast-breeding herbivorous mammal'
     },
     mouse: {
@@ -156,7 +213,21 @@ export const Species = {
       description: 'Large herbivore that browses on vegetation'
     },
     
-    // SECONDARY CONSUMERS (smaller predators)
+    /** 
+     * SECONDARY CONSUMERS (smaller predators)
+     * These feed on primary consumers (herbivores) and maintain herbivore populations.
+     * They're critical for preventing herbivore overpopulation and plant extinction.
+     * 
+     * Key balance factors: 
+     * - eatRate & eatGain: Determine hunting effectiveness (lower success but higher gain)
+     * - metabolism: Usually lower than herbivores (more efficient energy use)
+     * - breedThreshold: Usually higher than herbivores (more selective breeding)
+     * 
+     * ECOSYSTEM EFFECTS:
+     * - Too many predators will collapse herbivore populations
+     * - Too few predators will allow herbivores to overpopulate and destroy plant populations
+     * - Usually smaller populations than herbivores but longer lifespans
+     */
     frog: {
       id: 'frog',
       name: 'Frog',
@@ -194,21 +265,21 @@ export const Species = {
       description: 'Reptile predator that hunts small animals'
     },
     fox: {
-      id: 'fox',
-      name: 'Fox',
-      emoji: '🦊',
-      color: '#f60',
-      producer: false,
-      diet: ['rabbit', 'mouse'],
-      eatRate: 0.12,
-      eatGain: 10,
-      breedRate: 0.04,
-      deathRate: 0.015,
-      maxAge: 600,
-      maxEnergy: 22,
-      metabolism: 0.6,
-      breedThreshold: 15,
-      startPop: 4,
+      id: 'fox',       // Unique identifier used in code
+      name: 'Fox',     // Display name in UI
+      emoji: '🦊',      // Visual representation
+      color: '#f60',    // Color for UI elements and graphs
+      producer: false,  // FALSE for consumers (animals that eat other species)
+      diet: ['rabbit', 'mouse'], // CRITICAL: Note this predator targets specific prey species
+      eatRate: 0.12,    // CRITICAL: Lower hunt success rate than herbivores (12% chance per tick)
+      eatGain: 10,      // CRITICAL: Much higher energy gain per feeding (balances lower success rate)
+      breedRate: 0.04,  // CRITICAL: Slow breeding rate (4% chance when above threshold)
+      deathRate: 0.015, // CRITICAL: Low natural death rate (1.5% chance per tick)
+      maxAge: 600,      // CRITICAL: Long lifespan (twice that of rabbits)
+      maxEnergy: 22,    // CRITICAL: High energy storage (can survive longer food shortages)
+      metabolism: 0.6,  // CRITICAL: Higher energy needs than prey (maintains predator-prey balance)
+      breedThreshold: 15,// CRITICAL: High energy required to reproduce (very selective breeding)
+      startPop: 4,      // Initial population (much lower than prey species)
       description: 'Cunning predator that hunts small mammals'
     },
     owl: {
@@ -230,23 +301,39 @@ export const Species = {
       description: 'Nocturnal predator with excellent hunting skills'
     },
     
-    // TERTIARY CONSUMERS (apex predators)
+    /** 
+     * TERTIARY CONSUMERS (apex predators)
+     * These represent the top of the food chain, preying on other predators and large herbivores.
+     * They require the most energy and have the lowest populations but highest individual impact.
+     * 
+     * Key balance factors: 
+     * - eatRate: Lower than other consumers (harder to catch prey)
+     * - eatGain: Highest in the ecosystem (large meals)
+     * - breedRate: Very low (slowest reproduction)
+     * - breedThreshold: Highest energy requirements to reproduce
+     * 
+     * ECOSYSTEM EFFECTS:
+     * - Act as keystone species that regulate entire food webs
+     * - Populations are highly sensitive to prey availability
+     * - Even small numbers can dramatically affect lower trophic levels
+     * - Extinction can cause trophic cascades through the entire ecosystem
+     */
     wolf: {
-      id: 'wolf',
-      name: 'Wolf',
-      emoji: '🐺',
-      color: '#88f',
-      producer: false,
-      diet: ['deer', 'rabbit'],
-      eatRate: 0.10,
-      eatGain: 15,
-      breedRate: 0.02,
-      deathRate: 0.008,
-      maxAge: 800,
-      maxEnergy: 35,
-      metabolism: 0.7,
-      breedThreshold: 25,
-      startPop: 3,
+      id: 'wolf',      // Unique identifier used in code
+      name: 'Wolf',    // Display name in UI
+      emoji: '🐺',      // Visual representation
+      color: '#559',   // Color for UI elements and graphs
+      producer: false, // FALSE for consumers (animals that eat other species)
+      diet: ['deer', 'fox', 'rabbit'], // CRITICAL: Note this apex predator hunts both herbivores AND other predators
+      eatRate: 0.08,   // CRITICAL: Low hunt success rate (8% chance per tick) - harder to catch prey
+      eatGain: 15,     // CRITICAL: Very high energy gain per feeding - largest meals in ecosystem
+      breedRate: 0.02, // CRITICAL: Very slow breeding rate (2% chance when above threshold)
+      deathRate: 0.01, // CRITICAL: Low natural death rate (1% chance per tick)
+      maxAge: 800,     // CRITICAL: Very long lifespan (longer than most species)
+      maxEnergy: 35,   // CRITICAL: Highest energy storage capacity in ecosystem
+      metabolism: 0.7, // CRITICAL: High energy consumption per tick (maintains predator-prey balance)
+      breedThreshold: 25, // CRITICAL: Extremely high energy requirement for reproduction
+      startPop: 2,     // Initial population (smallest of all species - typical for apex predators)
       description: 'Pack-hunting apex predator that targets large herbivores'
     },
     lynx: {
@@ -284,6 +371,24 @@ export const Species = {
       breedThreshold: 20,
       startPop: 2,
       description: 'Aerial apex predator with exceptional vision'
+    },
+    bear: {
+      id: 'bear',      // Unique identifier used in code
+      name: 'Bear',    // Display name in UI
+      emoji: '🐻',      // Visual representation
+      color: '#950',   // Color for UI elements and graphs
+      producer: false, // FALSE for consumers (animals that eat other species)
+      diet: ['deer', 'fox', 'rabbit', 'mouse', 'fish'], // CRITICAL: Most diverse diet of all species - extremely adaptable
+      eatRate: 0.10,   // CRITICAL: Moderate hunt success rate for an apex predator (10% chance per tick)
+      eatGain: 18,     // CRITICAL: Highest energy gain per feeding in the ecosystem
+      breedRate: 0.01, // CRITICAL: Slowest breeding rate in ecosystem (1% chance when above threshold)
+      deathRate: 0.006,// CRITICAL: Very low natural death rate (0.6% chance per tick)
+      maxAge: 1000,    // CRITICAL: Longest lifespan in the ecosystem
+      maxEnergy: 40,   // CRITICAL: Highest energy storage capacity (can survive longest without food)
+      metabolism: 0.8, // CRITICAL: Highest energy consumption per tick (requires frequent feeding)
+      breedThreshold: 30, // CRITICAL: Highest energy threshold for reproduction (most selective breeding)
+      startPop: 1,     // Initial population (lowest in ecosystem - typical for top predators)
+      description: 'Omnivorous apex predator with diverse diet'
     }
   },
   
