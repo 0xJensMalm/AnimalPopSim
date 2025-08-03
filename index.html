@@ -1,23 +1,94 @@
 <!doctype html>
-<meta charset="utf-8">
-<title>ASCII Animal Sim</title>
-<link rel="stylesheet" href="styles.css">
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ASCII Population Sim</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="grid-container">
+    <!-- Top Left: Monitor Section -->
+    <div class="grid-cell top-left">
+      <div class="panel">
+        <div class="panel-title">┌─── Monitor ───────────────────────────┐</div>
+        <div id="visualization" class="panel-content">
+          <div class="placeholder">Placeholder for future visual representation</div>
+        </div>
+        <div class="panel-footer">└────────────────────────────────────────┘</div>
+      </div>
+    </div>
+    
+    <!-- Top Right: Data Insights -->
+    <div class="grid-cell top-right">
+      <div class="panel">
+        <div class="panel-title">┌─── Data Insights ──────────────────────┐</div>
+        <div id="insights" class="panel-content">
+          <!-- Global Stats Header -->
+          <div id="global-stats" class="global-stats">
+            <div class="stat-item">🦊 Total Pop: <span id="animal-pop">0</span></div>
+            <div class="stat-item">🐛 Bug Pop: <span id="bug-pop">0</span></div>
+            <div class="stat-item">🌿 Total Biomass: <span id="total-biomass">0</span></div>
+            <div class="stat-item">⏱️ Time: <span id="sim-time">0</span></div>
+            <div class="stat-item">☀️ Sunlight: <span id="sunlight">100%</span></div>
+          </div>
+          
+          <!-- Table View -->
+          <div id="data-table" class="data-table">
+            <!-- Tables will be populated dynamically -->
+          </div>
+          
+          <!-- Graph Visualization -->
+          <div id="data-graph" class="data-graph">
+            <div class="graph-placeholder">Select data point from table to visualize</div>
+          </div>
+        </div>
+        <div class="panel-footer">└────────────────────────────────────────┘</div>
+      </div>
+    </div>
+    
+    <!-- Bottom Left: Console -->
+    <div class="grid-cell bottom-left">
+      <div class="panel">
+        <div class="panel-title">┌─── Console ────────────────────────────┐</div>
+        <div class="panel-content">
+          <pre id="console" class="console">Animal Population Simulator v1.0 - Ready to start!</pre>
+        </div>
+        <div class="panel-footer">└────────────────────────────────────────┘</div>
+      </div>
+    </div>
+    
+    <!-- Bottom Right: Controls -->
+    <div class="grid-cell bottom-right">
+      <div class="panel">
+        <div class="panel-title">┌─── Controls ───────────────────────────┐</div>
+        <div class="panel-content">
+          <div id="sim-controls" class="control-section">
+            <button id="btn-start" class="btn">▶ Start</button>
+            <button id="btn-stop" class="btn" disabled>⏹ Stop</button>
+            <div class="speed-control">
+              <label for="sim-speed">Speed: </label>
+              <input type="range" id="sim-speed" min="1" max="10" value="5">
+              <span id="speed-value">5</span>
+            </div>
+            <button id="btn-reset" class="btn btn-reset">↻ Reset</button>
+          </div>
+          
+          <div id="species-controls" class="control-section">
+            <div class="section-title">↪ Add Species</div>
+            <div id="species-grid" class="species-grid">
+              <!-- Will be populated dynamically -->
+            </div>
+          </div>
+        </div>
+        <div class="panel-footer">└────────────────────────────────────────┘</div>
+      </div>
+    </div>
+  </div>
 
-<div class="main-column">
-  <pre id="monitor">ASCII Animal Sim v0.1 – press Start!</pre>
-  <form id="menu"></form>
-</div>
+  <!-- Hidden tooltip for data points -->
+  <div id="tooltip" class="tooltip" hidden></div>
 
-<div class="side-column">
-  <section id="insights">
-    <div class="insights-title">Population Insights</div>
-  </section>
-</div>
-
-<!-- hidden tooltip -->
-<div id="tooltip" hidden></div>
-
-<script src="species.js"></script>
-<script src="storage.js"></script>
-<script src="sim.js"></script>
-<script src="ui.js"></script>
+  <!-- Scripts -->
+  <script src="main.js" type="module"></script>
+</body>
+</html>
