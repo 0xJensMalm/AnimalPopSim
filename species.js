@@ -58,13 +58,13 @@ export const Species = {
       diet: [],         // Empty for producers (plants don't eat)
       eatRate: 0,       // Unused for producers
       eatGain: 0,       // Unused for producers
-      breedRate: 0.35,  // CRITICAL: Chance to reproduce per tick - high value means fast spread (0.35 = 35% chance)
+      breedRate: 0.20,  // CRITICAL: Reduced from 0.35 to prevent explosive growth (0.20 = 20% chance)
       deathRate: 0.01,  // CRITICAL: Chance of dying per tick - low value means longer lifespan (0.01 = 1% chance)
       maxAge: 400,      // CRITICAL: Maximum lifespan in ticks before guaranteed death
-      maxEnergy: 8,     // CRITICAL: Maximum energy storage - affects survival during low sunlight
+      maxEnergy: 10,    // CRITICAL: Increased energy storage for better stability
       metabolism: 0,    // Plants don't lose energy per tick (0 = no energy loss)
-      breedThreshold: 3,// CRITICAL: Minimum energy needed to reproduce - lower means easier breeding
-      photoRate: 0.5,   // CRITICAL: Energy gained from sunlight per tick - higher means faster growth
+      breedThreshold: 4,// CRITICAL: Slightly higher threshold to slow initial expansion
+      photoRate: 0.6,   // CRITICAL: Increased energy gain to balance higher threshold
       startPop: 200,    // Initial population when simulation starts
       description: 'Fast-growing ground cover that thrives in sunlight'
     },
@@ -129,14 +129,14 @@ export const Species = {
       color: '#f0f',    // Color for UI elements and graphs
       producer: false,  // FALSE for consumers (animals that eat other species)
       diet: ['grass', 'shrub'], // CRITICAL: What this species can eat - directly affects survival
-      eatRate: 0.35,    // CRITICAL: High chance of successful feeding (35% chance per tick)
-      eatGain: 2,       // CRITICAL: Low energy gain per feeding (balance with high eatRate)
-      breedRate: 0.30,  // CRITICAL: Very high reproduction rate (30% chance when above threshold)
-      deathRate: 0.08,  // CRITICAL: High natural death rate (8% chance per tick)
-      maxAge: 80,       // CRITICAL: Very short lifespan in ticks
-      maxEnergy: 6,     // CRITICAL: Low energy storage capacity (dies quickly without food)
-      metabolism: 0.4,  // CRITICAL: High energy loss per tick (40% of 1 energy unit)
-      breedThreshold: 3,// CRITICAL: Low energy required to reproduce (breeds easily)
+      eatRate: 0.40,    // CRITICAL: Increased feeding success for better survival (40% chance per tick)
+      eatGain: 3,       // CRITICAL: Increased energy gain to support metabolism
+      breedRate: 0.25,  // CRITICAL: Reduced breeding rate for more stable populations
+      deathRate: 0.05,  // CRITICAL: Reduced death rate from 8% to 5% for better survival
+      maxAge: 100,      // CRITICAL: Increased lifespan for more stability
+      maxEnergy: 8,     // CRITICAL: Increased energy storage for better survival
+      metabolism: 0.3,  // CRITICAL: Reduced energy loss per tick (30% instead of 40%)
+      breedThreshold: 4,// CRITICAL: Slightly higher threshold to balance increased energy gain
       startPop: 80,     // Initial population (high to support predators)
       description: 'Fast-breeding invertebrates that consume plant matter'
     },
@@ -165,14 +165,14 @@ export const Species = {
       color: '#ccc',    // Color for UI elements and graphs
       producer: false,  // FALSE for consumers (animals that eat other species)
       diet: ['grass', 'shrub'], // CRITICAL: Multiple food sources increases survival chances
-      eatRate: 0.20,    // CRITICAL: Moderate feeding success rate (20% chance per tick)
-      eatGain: 4,       // CRITICAL: Higher energy gain per feeding than insects (balances lower eatRate)
-      breedRate: 0.15,  // CRITICAL: Fast breeding (15% chance when above threshold)
-      deathRate: 0.03,  // CRITICAL: Moderate natural death rate (3% chance per tick)
-      maxAge: 300,      // CRITICAL: Medium lifespan - lives longer than insects but shorter than predators
-      maxEnergy: 12,    // CRITICAL: Moderate energy storage (can survive longer without food than insects)
-      metabolism: 0.5,  // CRITICAL: High energy loss per tick (50% of 1 energy unit) - requires regular feeding
-      breedThreshold: 7,// CRITICAL: Moderate energy required to reproduce (more selective than insects)
+      eatRate: 0.25,    // CRITICAL: Improved feeding success for better survival (25% chance per tick)
+      eatGain: 5,       // CRITICAL: Increased energy gain to support reduced metabolism
+      breedRate: 0.12,  // CRITICAL: Slightly reduced breeding for more stable populations
+      deathRate: 0.02,  // CRITICAL: Reduced death rate for better survival (2% chance per tick)
+      maxAge: 350,      // CRITICAL: Increased lifespan for more stability
+      maxEnergy: 15,    // CRITICAL: Increased energy storage for better survival
+      metabolism: 0.35, // CRITICAL: Reduced energy loss per tick (35% instead of 50%)
+      breedThreshold: 8,// CRITICAL: Balanced threshold with increased energy gain
       startPop: 15,     // Initial population (balanced between insects and predators)
       description: 'Fast-breeding herbivorous mammal'
     },
@@ -271,14 +271,14 @@ export const Species = {
       color: '#f60',    // Color for UI elements and graphs
       producer: false,  // FALSE for consumers (animals that eat other species)
       diet: ['rabbit', 'mouse'], // CRITICAL: Note this predator targets specific prey species
-      eatRate: 0.12,    // CRITICAL: Lower hunt success rate than herbivores (12% chance per tick)
-      eatGain: 10,      // CRITICAL: Much higher energy gain per feeding (balances lower success rate)
-      breedRate: 0.04,  // CRITICAL: Slow breeding rate (4% chance when above threshold)
-      deathRate: 0.015, // CRITICAL: Low natural death rate (1.5% chance per tick)
-      maxAge: 600,      // CRITICAL: Long lifespan (twice that of rabbits)
-      maxEnergy: 22,    // CRITICAL: High energy storage (can survive longer food shortages)
-      metabolism: 0.6,  // CRITICAL: Higher energy needs than prey (maintains predator-prey balance)
-      breedThreshold: 15,// CRITICAL: High energy required to reproduce (very selective breeding)
+      eatRate: 0.10,    // CRITICAL: Reduced hunt success for more sustainable predation (10% chance per tick)
+      eatGain: 12,      // CRITICAL: Increased energy gain to compensate for lower success rate
+      breedRate: 0.03,  // CRITICAL: Reduced breeding rate for more stable populations
+      deathRate: 0.012, // CRITICAL: Slightly reduced death rate for better survival
+      maxAge: 650,      // CRITICAL: Increased lifespan for more stability
+      maxEnergy: 25,    // CRITICAL: Increased energy storage for better survival during food shortages
+      metabolism: 0.5,  // CRITICAL: Reduced energy consumption for more sustainable populations
+      breedThreshold: 16,// CRITICAL: Slightly higher threshold to balance increased energy gain
       startPop: 4,      // Initial population (much lower than prey species)
       description: 'Cunning predator that hunts small mammals'
     },
