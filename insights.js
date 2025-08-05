@@ -336,36 +336,43 @@ export const Insights = {
     const legendContainer = document.createElement('div');
     legendContainer.className = 'graph-legend';
     
-    // Calculate scaling factor for graph
+    // Calculate dynamic scaling for better visualization
     const maxValue = Math.max(...dataPoints, 1);
+    const minValue = Math.min(...dataPoints, 0);
+    const valueRange = maxValue - minValue;
+    const displayMin = valueRange > 0 ? minValue : 0;
+    const displayMax = valueRange > 0 ? maxValue : 1;
     
     // Create SVG for better visualization
     const svgNS = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNS, "svg");
     svg.setAttribute("width", "100%");
     svg.setAttribute("height", "170");
+    svg.setAttribute("viewBox", "0 0 800 170");
+    svg.setAttribute("preserveAspectRatio", "none");
     svg.style.backgroundColor = "rgba(0, 20, 40, 0.2)";
     
-    // Add grid lines
+    // Add grid lines with dynamic scaling
     for (let i = 0; i <= 4; i++) {
       const line = document.createElementNS(svgNS, "line");
-      const y = 180 - (i * 45);
+      const y = 160 - (i * 32); // Use 160 height for graph area, 32 units per grid line
       line.setAttribute("x1", "0");
       line.setAttribute("y1", y);
-      line.setAttribute("x2", "100%");
+      line.setAttribute("x2", "800");
       line.setAttribute("y2", y);
       line.setAttribute("stroke", "#333");
-      line.setAttribute("stroke-width", "1");
-      line.setAttribute("stroke-dasharray", "4 2");
+      line.setAttribute("stroke-width", "0.5");
+      line.setAttribute("stroke-dasharray", "2 1");
       svg.appendChild(line);
       
-      // Add y-axis label
+      // Add y-axis label with dynamic values
       const text = document.createElementNS(svgNS, "text");
-      text.setAttribute("x", "5");
-      text.setAttribute("y", y - 5);
+      text.setAttribute("x", "8");
+      text.setAttribute("y", y - 2);
       text.setAttribute("fill", "#999");
-      text.setAttribute("font-size", "10");
-      text.textContent = Math.round(maxValue * i / 4);
+      text.setAttribute("font-size", "12");
+      const labelValue = displayMin + ((displayMax - displayMin) * i / 4);
+      text.textContent = labelValue.toFixed(1);
       svg.appendChild(text);
     }
     
@@ -376,9 +383,11 @@ export const Insights = {
     // Only generate path if we have data points
     if (dataPoints.length > 0) {
       dataPoints.forEach((value, index) => {
-        // Safety check to prevent division by zero
-        const x = dataPoints.length > 1 ? (index / (dataPoints.length - 1)) * 100 : 0;
-        const y = 180 - ((value / maxValue) * 170);
+        // Calculate x position across full width (0-800)
+        const x = dataPoints.length > 1 ? (index / (dataPoints.length - 1)) * 800 : 400;
+        // Calculate y position using dynamic scaling (160 is graph height)
+        const normalizedValue = (value - displayMin) / (displayMax - displayMin);
+        const y = 160 - (normalizedValue * 128); // Use 128 for graph area (160 - 32 margin)
         
         if (index === 0) {
           pathData += `M ${x} ${y}`;
@@ -394,21 +403,25 @@ export const Insights = {
       svg.appendChild(path);
     }
     
-    // Add data points
+    // Add data points with dynamic scaling
     dataPoints.forEach((value, index) => {
-      // Safety check to prevent division by zero
-      const x = dataPoints.length > 1 ? (index / (dataPoints.length - 1)) * 100 : 0;
-      const y = 180 - ((value / maxValue) * 170);
+      // Calculate x position across full width (0-800)
+      const x = dataPoints.length > 1 ? (index / (dataPoints.length - 1)) * 800 : 400;
+      // Calculate y position using dynamic scaling
+      const normalizedValue = (value - displayMin) / (displayMax - displayMin);
+      const y = 160 - (normalizedValue * 128); // Use 128 for graph area (160 - 32 margin)
       
       const circle = document.createElementNS(svgNS, "circle");
       circle.setAttribute("cx", x);
       circle.setAttribute("cy", y);
       circle.setAttribute("r", "3");
       circle.setAttribute("fill", species.color);
+      circle.setAttribute("stroke", "white");
+      circle.setAttribute("stroke-width", "1");
       
       // Add tooltip functionality
       const title = document.createElementNS(svgNS, "title");
-      title.textContent = `Time: ${Sim.time - dataPoints.length + index}, Value: ${value.toFixed(1)}`;
+      title.textContent = `Time: ${Sim.time - dataPoints.length + index + 1}, Value: ${value.toFixed(1)}`;
       circle.appendChild(title);
       
       svg.appendChild(circle);
@@ -504,41 +517,52 @@ export const Insights = {
     const svg = document.createElementNS(svgNS, "svg");
     svg.setAttribute("width", "100%");
     svg.setAttribute("height", "170");
+    svg.setAttribute("viewBox", "0 0 800 170");
+    svg.setAttribute("preserveAspectRatio", "none");
     svg.style.backgroundColor = "rgba(0, 20, 40, 0.2)";
     
-    // Find max population across active species for scaling
+    // Find max and min population across active species for dynamic scaling
     let maxPop = 1;
+    let minPop = 0;
     const dataLength = Sim.history.total.pop.length;
     
-    // Only include active species in max population calculation
+    // Only include active species in scaling calculation
     allSpecies.forEach(species => {
       if (this.activeSpecies.has(species.id)) {
         const popData = Sim.history.speciesData[species.id]?.pop || [];
-        const speciesMax = Math.max(...popData);
-        if (speciesMax > maxPop) maxPop = speciesMax;
+        if (popData.length > 0) {
+          const speciesMax = Math.max(...popData);
+          const speciesMin = Math.min(...popData);
+          if (speciesMax > maxPop) maxPop = speciesMax;
+          if (speciesMin < minPop) minPop = speciesMin;
+        }
       }
     });
     
-    // Add grid lines
+    const displayMin = minPop;
+    const displayMax = maxPop > minPop ? maxPop : minPop + 1;
+    
+    // Add grid lines with dynamic scaling
     for (let i = 0; i <= 4; i++) {
       const line = document.createElementNS(svgNS, "line");
-      const y = 180 - (i * 45);
+      const y = 160 - (i * 32); // Use 160 height for graph area
       line.setAttribute("x1", "0");
       line.setAttribute("y1", y);
-      line.setAttribute("x2", "100%");
+      line.setAttribute("x2", "800");
       line.setAttribute("y2", y);
       line.setAttribute("stroke", "#333");
-      line.setAttribute("stroke-width", "1");
-      line.setAttribute("stroke-dasharray", "4 2");
+      line.setAttribute("stroke-width", "0.5");
+      line.setAttribute("stroke-dasharray", "2 1");
       svg.appendChild(line);
       
-      // Add y-axis label
+      // Add y-axis label with dynamic values
       const text = document.createElementNS(svgNS, "text");
-      text.setAttribute("x", "5");
-      text.setAttribute("y", y - 5);
+      text.setAttribute("x", "8");
+      text.setAttribute("y", y - 2);
       text.setAttribute("fill", "#999");
-      text.setAttribute("font-size", "10");
-      text.textContent = Math.round(maxPop * i / 4);
+      text.setAttribute("font-size", "12");
+      const labelValue = displayMin + ((displayMax - displayMin) * i / 4);
+      text.textContent = labelValue.toFixed(0);
       svg.appendChild(text);
     }
     
@@ -553,11 +577,13 @@ export const Insights = {
         const path = document.createElementNS(svgNS, "path");
         let pathData = "";
         
-        // Generate path data
+        // Generate path data with dynamic scaling
         popData.forEach((pop, i) => {
-          // Safety check to prevent division by zero
-          const x = dataLength > 1 ? (i / (dataLength - 1)) * 100 : 0;
-          const y = 170 - ((pop / maxPop) * 160);
+          // Calculate x position across full width (0-800)
+          const x = dataLength > 1 ? (i / (dataLength - 1)) * 800 : 400;
+          // Calculate y position using dynamic scaling
+          const normalizedValue = (pop - displayMin) / (displayMax - displayMin);
+          const y = 160 - (normalizedValue * 128); // Use 128 for graph area
           
           if (i === 0) {
             pathData += `M ${x} ${y}`;
@@ -573,16 +599,21 @@ export const Insights = {
         
         svg.appendChild(path);
         
-        // Add data points for this species
+        // Add data points for this species with dynamic scaling
         popData.forEach((pop, i) => {
-          const x = dataLength > 1 ? (i / (dataLength - 1)) * 100 : 0;
-          const y = 170 - ((pop / maxPop) * 160);
+          // Calculate x position across full width (0-800)
+          const x = dataLength > 1 ? (i / (dataLength - 1)) * 800 : 400;
+          // Calculate y position using dynamic scaling
+          const normalizedValue = (pop - displayMin) / (displayMax - displayMin);
+          const y = 160 - (normalizedValue * 128);
           
           const circle = document.createElementNS(svgNS, "circle");
           circle.setAttribute("cx", x);
           circle.setAttribute("cy", y);
           circle.setAttribute("r", "2");
           circle.setAttribute("fill", species.color);
+          circle.setAttribute("stroke", "white");
+          circle.setAttribute("stroke-width", "0.5");
           
           svg.appendChild(circle);
         });

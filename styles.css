@@ -190,23 +190,23 @@ html, body {
 }
 
 .data-table {
-  margin-bottom: 12px;
-  max-height: 40%;
+  margin-bottom: 8px;
+  max-height: 45%;
   overflow-y: auto;
   border-bottom: 1px dashed #fff;
-  padding-bottom: 8px;
+  padding-bottom: 6px;
+  flex-shrink: 0;
 }
 
 /* Graph visualization */
 .data-graph {
-  height: 220px;
+  flex: 1;
+  min-height: 200px;
   border: 1px solid #fff;
   padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-top: auto;
-  margin-bottom: 0;
   overflow: hidden;
 }
 
