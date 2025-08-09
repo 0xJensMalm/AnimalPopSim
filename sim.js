@@ -3,8 +3,25 @@ import { Storage } from './storage.js';
 import { UI } from './ui.js';
 import { Insights } from './insights.js';
 
-// Helper function for random selection from arrays
-const randomPick = arr => arr[Math.floor(Math.random() * arr.length)];
+// Helper function for random selection from arrays (uses Sim.random for determinism)
+const randomPick = arr => arr[Math.floor(Sim.random() * arr.length)];
+
+// Lightweight runtime config for easy tuning
+const CONFIG = {
+  historyCap: 100,
+  seasonalCycleLength: 100,
+  insightsUpdateEveryNTicks: 3, // throttle expensive DOM updates
+};
+
+// Simple seeded PRNG (mulberry32) for reproducible simulations
+function mulberry32(a) {
+  return function() {
+    let t = (a += 0x6D2B79F5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
 export const Sim = {
   // Core simulation state
@@ -12,6 +29,9 @@ export const Sim = {
   isRunning: false,
   timer: null,
   tickSpeed: 500, // milliseconds between ticks
+  _lastInsightsUpdateTick: -1,
+  seed: null,
+  _rng: null,
   
   // Population data
   species: [], // List of species definitions
@@ -40,6 +60,7 @@ export const Sim = {
       this.populations = savedData.populations;
       this.history = savedData.history;
       this.environment = savedData.environment;
+      this.seed = savedData.seed ?? this.seed;
     } else {
       // Start with empty populations
       this.species = Species.getAll();
@@ -52,6 +73,11 @@ export const Sim = {
         }
       });
     }
+    // Initialize RNG (generate a new seed if missing)
+    if (!this.seed) {
+      this.seed = (Date.now() >>> 0);
+    }
+    this._rng = mulberry32(this.seed >>> 0);
     
     // Initialize history if empty
     if (!this.history.speciesData) {
@@ -63,6 +89,9 @@ export const Sim = {
       });
     }
     
+    // Validate species config early and warn if needed
+    this.validateSpeciesConfig();
+
     // Update UI with initial state
     this.updateStats();
   },
@@ -118,6 +147,9 @@ export const Sim = {
       season: 'summer',
       cycleDay: 0
     };
+    // Re-seed for a fresh deterministic run
+    this.seed = (Date.now() >>> 0);
+    this._rng = mulberry32(this.seed >>> 0);
     
     // Reset all population data
     this.resetPopulations();
@@ -152,7 +184,7 @@ export const Sim = {
       this.populations[speciesId].push({
         id: crypto.randomUUID().slice(0, 8),
         age: 0,
-        energy: spec.maxEnergy * 0.7 + (Math.random() * spec.maxEnergy * 0.3)
+        energy: spec.maxEnergy * 0.7 + (this.random() * spec.maxEnergy * 0.3)
       });
     }
     
@@ -183,7 +215,8 @@ export const Sim = {
       time: this.time,
       populations: this.populations,
       history: this.history,
-      environment: this.environment
+      environment: this.environment,
+      seed: this.seed
     });
   },
   
@@ -206,7 +239,7 @@ export const Sim = {
   tick() {
     this.time++;
     
-    // Update environment
+    // Update environmental factors
     this.updateEnvironment();
     
     // Track interesting events
@@ -247,20 +280,20 @@ export const Sim = {
         }
         
         // Death checks
-        if (individual.energy <= 0 || individual.age > spec.maxAge || Math.random() < spec.deathRate) {
+        if (individual.energy <= 0 || individual.age > spec.maxAge || this.random() < spec.deathRate) {
           population.splice(i, 1);
           deaths++;
           continue;
         }
         
         // Feeding behavior for consumers
-        if (!spec.producer && spec.diet.length > 0 && Math.random() < spec.eatRate) {
+        if (!spec.producer && spec.diet.length > 0 && this.random() < spec.eatRate) {
           const targetSpecies = randomPick(spec.diet);
           const preyPopulation = this.populations[targetSpecies];
           
           if (preyPopulation && preyPopulation.length > 0) {
             // Find a random prey
-            const preyIndex = Math.floor(Math.random() * preyPopulation.length);
+            const preyIndex = Math.floor(this.random() * preyPopulation.length);
             
             // Remove the prey
             preyPopulation.splice(preyIndex, 1);
@@ -273,10 +306,10 @@ export const Sim = {
         // Reproduction
         if (spec.producer) {
           // Plants reproduce based on sunlight and space
-          if (Math.random() < spec.breedRate * this.environment.sunlight) {
+          if (this.random() < spec.breedRate * this.environment.sunlight) {
             const populationFactor = Math.max(0.1, 1 - (population.length / 200));
             
-            if (Math.random() < populationFactor) {
+            if (this.random() < populationFactor) {
               population.push({
                 id: crypto.randomUUID().slice(0, 8),
                 age: 0,
@@ -287,20 +320,19 @@ export const Sim = {
           }
         } else {
           // Animals need sufficient energy to reproduce
-          if (individual.energy > spec.breedThreshold && Math.random() < spec.breedRate) {
+          if (individual.energy > spec.breedThreshold && this.random() < spec.breedRate) {
             const populationFactor = Math.max(0.1, 1 - (population.length / 100));
             
-            if (Math.random() < populationFactor) {
+            if (this.random() < populationFactor) {
               population.push({
                 id: crypto.randomUUID().slice(0, 8),
                 age: 0,
                 energy: spec.maxEnergy * 0.6
               });
               births++;
-              
-              // Reproduction costs energy
-              individual.energy *= 0.7;
             }
+            // Reproduction costs energy
+            individual.energy *= 0.7;
           }
         }
       }
@@ -337,7 +369,7 @@ export const Sim = {
     // Log interesting events
     this.logEvents(tickData);
     
-    // Update global stats
+    // Update stats and UI (throttled for insights)
     this.updateStats();
     
     // Auto-save every 10 ticks
@@ -346,7 +378,8 @@ export const Sim = {
         time: this.time,
         populations: this.populations,
         history: this.history,
-        environment: this.environment
+        environment: this.environment,
+        seed: this.seed
       });
     }
   },
@@ -378,8 +411,8 @@ export const Sim = {
         }
         
         // Apply migration with a low probability if conditions are favorable
-        if (canMigrate && Math.random() < 0.1) { // 10% chance when conditions are right
-          const migrants = 1 + Math.floor(Math.random() * 2); // 1-2 individuals migrate in
+        if (canMigrate && this.random() < 0.1) { // 10% chance when conditions are right
+          const migrants = 1 + Math.floor(this.random() * 2); // 1-2 individuals migrate in
           this.addIndividuals(spec.id, migrants);
           UI.log(`🔄 ${migrants} ${spec.name} migrated into the ecosystem!`, 'system');
         }
@@ -389,7 +422,7 @@ export const Sim = {
   
   // Update environmental factors
   updateEnvironment() {
-    const cycleDuration = 100; // Length of full seasonal cycle
+    const cycleDuration = CONFIG.seasonalCycleLength; // Length of full seasonal cycle
     this.environment.cycleDay = this.time % cycleDuration;
     
     // Seasonal sunlight variation (sinusoidal)
@@ -432,7 +465,7 @@ export const Sim = {
     this.history.consumers.pop.push(consumerPop);
     
     // Cap history length
-    const maxHistory = 100;
+    const maxHistory = CONFIG.historyCap;
     if (this.history.total.pop.length > maxHistory) {
       this.history.total.pop.shift();
       this.history.total.biomass.shift();
@@ -447,10 +480,15 @@ export const Sim = {
     document.getElementById('total-biomass').textContent = Math.round(totalBiomass);
     document.getElementById('sim-time').textContent = this.time;
     document.getElementById('sunlight').textContent = `${Math.round(this.environment.sunlight * 100)}%`;
+    const seasonEl = document.getElementById('season');
+    if (seasonEl) seasonEl.textContent = this.environment.season;
     
-    // Update insights panel - only if it's been initialized
+    // Throttle insights panel updates - only if it's been initialized
     if (Insights.tableElement) {
-      Insights.update();
+      if (this._lastInsightsUpdateTick < 0 || (this.time - this._lastInsightsUpdateTick) >= CONFIG.insightsUpdateEveryNTicks) {
+        Insights.update();
+        this._lastInsightsUpdateTick = this.time;
+      }
     }
   },
   
@@ -486,4 +524,36 @@ export const Sim = {
       }
     }
   }
+};
+
+// Basic sanity validation for species configuration
+// Logs warnings to console for common issues but does not throw
+Sim.validateSpeciesConfig = function() {
+  const all = Species.getAll();
+  const ids = new Set(all.map(s => s.id));
+
+  all.forEach(s => {
+    // Diet references exist
+    if (Array.isArray(s.diet)) {
+      s.diet.forEach(d => {
+        if (!ids.has(d)) {
+          console.warn(`species.js: '${s.id}' diet references unknown species '${d}'`);
+        }
+      });
+    }
+    // Probability fields in [0,1]
+    const probFields = ['eatRate', 'breedRate', 'deathRate'];
+    probFields.forEach(f => {
+      if (s[f] != null && (s[f] < 0 || s[f] > 1)) {
+        console.warn(`species.js: '${s.id}.${f}' out of range [0,1]: ${s[f]}`);
+      }
+    });
+    // Non-negative numeric fields
+    const nonNegFields = ['maxAge', 'maxEnergy', 'metabolism', 'breedThreshold', 'photoRate', 'eatGain', 'startPop'];
+    nonNegFields.forEach(f => {
+      if (s[f] != null && s[f] < 0) {
+        console.warn(`species.js: '${s.id}.${f}' should be >= 0: ${s[f]}`);
+      }
+    });
+  });
 };

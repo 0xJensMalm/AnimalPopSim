@@ -40,14 +40,36 @@ export const UI = {
       item.className = 'species-item has-tooltip';
       item.dataset.species = spec.id;
       item.dataset.tooltip = spec.description;
-      item.innerHTML = `${spec.emoji}<br>+`;
+      
+      // Create species card structure
+      item.innerHTML = `
+        <div class="species-name">${spec.name}</div>
+        <div class="species-buttons">
+          <button class="quantity-btn" data-quantity="1">+1</button>
+          <button class="quantity-btn" data-quantity="10">+10</button>
+          <button class="quantity-btn" data-quantity="100">+100</button>
+        </div>
+      `;
       
       // Style based on producer/consumer
-      item.style.color = spec.color;
+      item.style.borderColor = spec.color;
       
-      // Add event listener to add individuals when clicked
-      item.addEventListener('click', () => {
-        Sim.addIndividuals(spec.id, 1);
+      // Add event listeners for quantity buttons
+      const buttons = item.querySelectorAll('.quantity-btn');
+      buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.stopPropagation(); // Prevent event bubbling
+          const quantity = parseInt(button.dataset.quantity);
+          Sim.addIndividuals(spec.id, quantity);
+          
+          // Visual feedback
+          button.style.backgroundColor = spec.color;
+          button.style.color = '#000';
+          setTimeout(() => {
+            button.style.backgroundColor = '';
+            button.style.color = '';
+          }, 150);
+        });
       });
       
       this.speciesGridElement.appendChild(item);

@@ -1,0 +1,48 @@
+/* PopSim ASCII Web - styles */
+:root{
+  --bg: #0f0f12;
+  --fg: #ddd;
+  --muted: #9aa;
+  --accent: #8ad;
+  --grass: #7cd67c;
+  --hop: #d6d67c;
+  --frog: #7ce2c8;
+  --snake: #7cb7e2;
+  --eagle: #d67ccc;
+}
+
+*{ box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body{
+  background: var(--bg); color: var(--fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  display: flex; flex-direction: column; min-height: 100%;
+}
+
+.header{ display:flex; flex-direction:column; align-items:center; padding: 16px 12px 8px; }
+.title{ font-weight: 700; color: var(--accent); font-size: 20px; letter-spacing: 1px; }
+.controls{ color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+.layout{ display:flex; gap: 16px; padding: 12px; max-width: 1200px; width: 100%; margin: 0 auto; }
+.panel{ flex:1; border: 1px solid #222; background: #111; padding: 12px; border-radius: 6px; }
+.panel h3{ margin: 0 0 6px 0; color: var(--muted); font-weight: 600; }
+
+pre{ margin: 0; white-space: pre; line-height: 1.2; font-size: 14px; }
+.hint{ color: var(--muted); text-align: center; padding: 10px 0 16px; font-size: 12px; }
+
+/* color helpers */
+.fg-accent{ color: var(--accent); }
+.fg-dim{ color: #778; }
+.fg-grass{ color: var(--grass); }
+.fg-hop{ color: var(--hop); }
+.fg-frog{ color: var(--frog); }
+.fg-snake{ color: var(--snake); }
+.fg-eagle{ color: var(--eagle); }
+
+/* Tabs */
+.tabs{ display:flex; gap:8px; margin-bottom:8px; }
+.tab{ background:#161616; color: var(--muted); border:1px solid #242424; padding:4px 8px; border-radius:5px; cursor:pointer; font-family:inherit; font-size:12px; }
+.tab.active{ color: var(--fg); border-color:#2e2e2e; background:#1a1a1a; }
+.tab:focus{ outline: 1px solid var(--accent); }
+
+#viz{ min-height: 16em; }

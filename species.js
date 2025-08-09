@@ -371,24 +371,6 @@ export const Species = {
       breedThreshold: 20,
       startPop: 2,
       description: 'Aerial apex predator with exceptional vision'
-    },
-    bear: {
-      id: 'bear',      // Unique identifier used in code
-      name: 'Bear',    // Display name in UI
-      emoji: '🐻',      // Visual representation
-      color: '#950',   // Color for UI elements and graphs
-      producer: false, // FALSE for consumers (animals that eat other species)
-      diet: ['deer', 'fox', 'rabbit', 'mouse', 'fish'], // CRITICAL: Most diverse diet of all species - extremely adaptable
-      eatRate: 0.10,   // CRITICAL: Moderate hunt success rate for an apex predator (10% chance per tick)
-      eatGain: 18,     // CRITICAL: Highest energy gain per feeding in the ecosystem
-      breedRate: 0.01, // CRITICAL: Slowest breeding rate in ecosystem (1% chance when above threshold)
-      deathRate: 0.006,// CRITICAL: Very low natural death rate (0.6% chance per tick)
-      maxAge: 1000,    // CRITICAL: Longest lifespan in the ecosystem
-      maxEnergy: 40,   // CRITICAL: Highest energy storage capacity (can survive longest without food)
-      metabolism: 0.8, // CRITICAL: Highest energy consumption per tick (requires frequent feeding)
-      breedThreshold: 30, // CRITICAL: Highest energy threshold for reproduction (most selective breeding)
-      startPop: 1,     // Initial population (lowest in ecosystem - typical for top predators)
-      description: 'Omnivorous apex predator with diverse diet'
     }
   },
   
