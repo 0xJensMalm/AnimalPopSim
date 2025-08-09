@@ -9,6 +9,8 @@
   --frog: #7ce2c8;
   --snake: #7cb7e2;
   --eagle: #d67ccc;
+  /* Top row panel height: ~middle of the page, responsive */
+  --top-row-h: clamp(180px, 35vh, 420px);
 }
 
 *{ box-sizing: border-box; }
@@ -51,8 +53,8 @@ pre{ margin: 0; white-space: pre; line-height: 1.2; font-size: 14px; max-width: 
 
 /* Top row: three columns */
 .top-row{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; align-items: stretch; }
-.top-row .panel{ display:flex; flex-direction:column; }
-.top-row .panel pre{ flex:1; }
+.top-row .panel{ display:flex; flex-direction:column; height: var(--top-row-h); }
+.top-row .panel pre{ flex:1; overflow: auto; }
 
 /* Insights panel stretches */
 .insights{ display:flex; flex-direction:column; min-height: 280px; }
@@ -67,8 +69,8 @@ pre{ margin: 0; white-space: pre; line-height: 1.2; font-size: 14px; max-width: 
   .top-row{ grid-template-columns: 1fr; }
 }
 
-/* Console/log: fixed height with scrollbar */
-#log{ height: 200px; overflow-y: auto; border: 1px solid #222; background: #101010; padding: 8px; }
+/* Console/log styling (scroll inside static height) */
+#log{ overflow-y: auto; border: 1px solid #222; background: #101010; padding: 8px; }
 
 /* Click affordance for species rows */
 #species{ cursor: pointer; }
