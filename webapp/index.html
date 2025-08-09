@@ -7,32 +7,37 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="header">
-    <div class="title">PopSim</div>
-    <div class="controls">q • SPACE • r • TAB/↑/↓ • ENTER • ←/→ • [ ] • +/- • n</div>
-  </header>
+  <div class="container">
+    <header class="header">
+      <div class="title">PopSim</div>
+    </header>
 
-  <main class="layout">
-    <section class="panel left">
-      <h3>Stats</h3>
-      <pre id="stats"></pre>
-
-      <h3>Species</h3>
-      <pre id="species"></pre>
-
-      <h3>Log</h3>
-      <pre id="log"></pre>
-    </section>
-    <section class="panel right">
-      <div class="tabs">
-        <button class="tab active" id="tab-mix">Mix</button>
-        <button class="tab" id="tab-graph">Graph</button>
+    <main class="layout">
+      <div class="top-row">
+        <section class="panel">
+          <h3>Stats</h3>
+          <pre id="stats"></pre>
+        </section>
+        <section class="panel">
+          <h3>Species</h3>
+          <pre id="species"></pre>
+        </section>
+        <section class="panel">
+          <h3>Log</h3>
+          <pre id="log"></pre>
+        </section>
       </div>
-      <pre id="viz"></pre>
-    </section>
-  </main>
+      <section class="panel insights">
+        <div class="tabs">
+          <button class="tab active" id="tab-mix">Mix</button>
+          <button class="tab" id="tab-graph">Graph</button>
+        </div>
+        <pre id="viz"></pre>
+      </section>
+    </main>
 
   <footer class="hint">Tip: click anywhere on the page to focus, then use the keyboard. No server required — just open this file.</footer>
+  </div>
 
   <script src="sim.js"></script>
   <script src="ui.js"></script>

@@ -36,17 +36,46 @@
       const sp = state.sp[i];
       const sel = (i === state.selected) ? '->' : '  ';
       const row = `${sel} ${padRight(sp.name,14)} ${padLeft(fmt(sp.pop,1),7)} ${padLeft(fmt(sp.last_gr,3),8)} ${padLeft(fmt(sp.last_dr,3),8)} ${padLeft(fmt(sp.last_g,2),8)} ${padLeft(fmt(sp.last_d,2),8)}`;
-      lines.push(`<span class="${colorClass(i)}">${row}</span>`);
+      lines.push(`<span class="${colorClass(i)} sp-row" data-index="${i}">${row}</span>`);
     }
     elSpecies.innerHTML = lines.join('\n');
+    // Click handling for logging stats (delegate, bind once)
+    if (!elSpecies.dataset.clickbound){
+      elSpecies.addEventListener('click', (ev) => {
+        const target = ev.target.closest('.sp-row');
+        if (!target) return;
+        const idx = +target.getAttribute('data-index');
+        const s = state.sp[idx];
+        const eats = s.eats || '—';
+        const msg = `${s.name}: eats ${eats} | eat ${fmt(s.last_g,2)}/step | breed ${fmt(s.growth,2)} | death ${fmt(s.death,2)} | maxAge ${s.maxAge ?? '—'} | pop ${fmt(s.pop,1)} | gRate ${fmt(s.last_gr,3)} | dRate ${fmt(s.last_dr,3)}`;
+        // Append to in-app log and render
+        state.log.push(msg);
+        if (state.log.length > 200) state.log.shift();
+        renderLog();
+        // Auto-scroll log to bottom
+        elLog.scrollTop = elLog.scrollHeight;
+      });
+      elSpecies.dataset.clickbound = '1';
+    }
   }
 
   function renderLog(){
     elLog.innerHTML = state.log.map(s => `<span class="fg-dim">${s}</span>`).join('\n');
   }
 
+  function measureCols(target, fallback){
+    // Estimate number of monospace columns that fit in the viz container
+    const el = target;
+    if (!el) return fallback;
+    const cw = 8; // conservative char width estimate; could be measured if needed
+    const pad = 16; // padding and borders
+    const w = Math.max(0, el.clientWidth - pad);
+    const cols = Math.max(20, Math.floor(w / cw));
+    return cols || fallback;
+  }
+
   function renderMix(){
-    const rightW = 56;
+    const rightW = measureCols(elViz, 56);
     const gridH = 16;
     const totalPop = Math.max(1e-6, state.sp.reduce((a,b)=>a+b.pop,0));
     function bar(){
@@ -66,7 +95,7 @@
       let colored = '';
       for (let i=0;i<b.length;i++){
         const ch = b[i];
-        const cls = ch==='.'? 'fg-grass' : ch==='h'? 'fg-hop' : ch==='f'? 'fg-frog' : ch==='s'? 'fg-snake' : 'fg-eagle';
+        const cls = ch==='.'? 'fg-grass' : ch==='r'? 'fg-hop' : ch==='f'? 'fg-frog' : ch==='w'? 'fg-snake' : 'fg-eagle';
         colored += `<span class="${cls}">${ch}</span>`;
       }
       lines.push(colored);
@@ -76,7 +105,7 @@
 
   // ASCII stacked graph of species populations over time
   function renderGraph(){
-    const width = 70;  // columns
+    const width = measureCols(elViz, 70);  // columns
     const height = 16; // rows
     const hist = state.hist;
     const lines = [];
@@ -96,7 +125,7 @@
     // For each column, compute stacked heights for 5 species
     // height excludes title row; draw height rows of graph using characters per species
     // We'll use symbols and color by species
-    const chars = ['.','h','f','s','e'];
+    const chars = ['.','r','f','w','b'];
     const clsFor = (i)=> i===0? 'fg-grass' : i===1? 'fg-hop' : i===2? 'fg-frog' : i===3? 'fg-snake' : 'fg-eagle';
 
     // Create grid filled with spaces
@@ -140,7 +169,7 @@
     }
 
     // Legend
-    lines.push(`<span class="fg-dim">Legend:</span> <span class="fg-grass">.</span> Grass  <span class="fg-hop">h</span> Hop  <span class="fg-frog">f</span> Frog  <span class="fg-snake">s</span> Snake  <span class="fg-eagle">e</span> Eagle`);
+    lines.push(`<span class="fg-dim">Legend:</span> <span class="fg-grass">.</span> Plants  <span class="fg-hop">r</span> Rabbits  <span class="fg-frog">f</span> Foxes  <span class="fg-snake">w</span> Wolves  <span class="fg-eagle">b</span> Bears`);
     elViz.innerHTML = lines.join('\n');
   }
 

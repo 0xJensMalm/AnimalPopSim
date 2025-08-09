@@ -19,15 +19,17 @@ body{
   display: flex; flex-direction: column; min-height: 100%;
 }
 
-.header{ display:flex; flex-direction:column; align-items:center; padding: 16px 12px 8px; }
+.container{ max-width: 1200px; margin: 0 auto; padding: 0 12px; min-height: 100vh; display:flex; flex-direction:column; }
+.header{ display:flex; flex-direction:column; align-items:center; padding: 16px 0 8px; }
 .title{ font-weight: 700; color: var(--accent); font-size: 20px; letter-spacing: 1px; }
 .controls{ color: var(--muted); font-size: 12px; margin-top: 4px; }
 
-.layout{ display:flex; gap: 16px; padding: 12px; max-width: 1200px; width: 100%; margin: 0 auto; }
+.layout{ display:flex; flex-direction:column; gap: 20px; padding: 16px 0 24px; width: 100%; }
 .panel{ flex:1; border: 1px solid #222; background: #111; padding: 12px; border-radius: 6px; }
+.panel{ min-width: 0; }
 .panel h3{ margin: 0 0 6px 0; color: var(--muted); font-weight: 600; }
 
-pre{ margin: 0; white-space: pre; line-height: 1.2; font-size: 14px; }
+pre{ margin: 0; white-space: pre; line-height: 1.2; font-size: 14px; max-width: 100%; overflow: auto; }
 .hint{ color: var(--muted); text-align: center; padding: 10px 0 16px; font-size: 12px; }
 
 /* color helpers */
@@ -45,4 +47,29 @@ pre{ margin: 0; white-space: pre; line-height: 1.2; font-size: 14px; }
 .tab.active{ color: var(--fg); border-color:#2e2e2e; background:#1a1a1a; }
 .tab:focus{ outline: 1px solid var(--accent); }
 
-#viz{ min-height: 16em; }
+#viz{ min-height: 16em; width: 100%; }
+
+/* Top row: three columns */
+.top-row{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; align-items: stretch; }
+.top-row .panel{ display:flex; flex-direction:column; }
+.top-row .panel pre{ flex:1; }
+
+/* Insights panel stretches */
+.insights{ display:flex; flex-direction:column; min-height: 280px; }
+.insights .tabs{ margin-bottom: 10px; }
+.insights #viz{ flex:1; min-height: 22em; width: 100%; }
+
+/* Responsive breakpoints */
+@media (max-width: 1100px){
+  .top-row{ grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 700px){
+  .top-row{ grid-template-columns: 1fr; }
+}
+
+/* Console/log: fixed height with scrollbar */
+#log{ height: 200px; overflow-y: auto; border: 1px solid #222; background: #101010; padding: 8px; }
+
+/* Click affordance for species rows */
+#species{ cursor: pointer; }
+.sp-row{ cursor: pointer; }

@@ -7,7 +7,7 @@
     if (e.key === ' '){ state.paused = !state.paused; e.preventDefault(); return; }
     if (e.key === 'r'){ state.sp = window.PopSim.state.sp = window.PopSim.state.sp.map((s,i)=>({
       name: s.name, sym: s.sym,
-      pop: [200,60,25,12,6][i], growth: [0.5,0.30,0.22,0.20,0.18][i], death: [0.05,0.10,0.12,0.14,0.15][i],
+      pop: [300,80,20,10,5][i], growth: [0.45,0.28,0.20,0.18,0.16][i], death: [0.04,0.09,0.11,0.12,0.13][i],
       last_g:0,last_d:0,last_gr:0,last_dr:0
     })); state.sun = 200; state.t = 0; state.log = []; state.hist = []; return; }
     if (e.key === 'Tab'){ state.selected = (state.selected + 1) % state.sp.length; e.preventDefault(); return; }
