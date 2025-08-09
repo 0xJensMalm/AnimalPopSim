@@ -2,6 +2,7 @@
 (function(){
   const { state, P } = window.PopSim;
   function clamp(x, lo, hi){ return Math.max(lo, Math.min(hi, x)); }
+  const baseMs = P.speedMs || 50;
 
   window.addEventListener('keydown', (e) => {
     if (e.key === ' '){ state.paused = !state.paused; e.preventDefault(); return; }
@@ -26,4 +27,16 @@
       state.sp[state.selected].pop += 10; return;
     }
   });
+
+  // Button controls
+  const btnPause = document.getElementById('btn-pause');
+  const btn1x = document.getElementById('btn-1x');
+  const btn2x = document.getElementById('btn-2x');
+  const btn5x = document.getElementById('btn-5x');
+  function updatePauseLabel(){ if (btnPause) btnPause.textContent = state.paused ? 'Play' : 'Pause'; }
+  btnPause?.addEventListener('click', ()=>{ state.paused = !state.paused; updatePauseLabel(); });
+  btn1x?.addEventListener('click', ()=>{ P.speedMs = baseMs; });
+  btn2x?.addEventListener('click', ()=>{ P.speedMs = Math.max(0, Math.floor(baseMs/2)); });
+  btn5x?.addEventListener('click', ()=>{ P.speedMs = Math.max(0, Math.floor(baseMs/5)); });
+  updatePauseLabel();
 })();

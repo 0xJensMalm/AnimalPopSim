@@ -16,11 +16,21 @@
       <div class="top-row">
         <section class="panel">
           <h3>Stats</h3>
+          <div class="ctrls" id="sim-ctrls">
+            <button id="btn-pause" class="btn">Pause</button>
+            <span class="sep"></span>
+            <button id="btn-1x" class="btn">1x</button>
+            <button id="btn-2x" class="btn">2x</button>
+            <button id="btn-5x" class="btn">5x</button>
+          </div>
           <pre id="stats"></pre>
         </section>
         <section class="panel">
           <h3>Species</h3>
-          <pre id="species"></pre>
+          <div id="species-panel" class="sp-panel">
+            <div id="species-grid" class="sp-grid"></div>
+            <div id="species-detail" class="sp-detail"></div>
+          </div>
         </section>
         <section class="panel">
           <h3>Log</h3>

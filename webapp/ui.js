@@ -3,6 +3,9 @@
   const { state, P, fmt } = window.PopSim;
   const elStats = document.getElementById('stats');
   const elSpecies = document.getElementById('species');
+  const elSpPanel = document.getElementById('species-panel');
+  const elSpGrid = document.getElementById('species-grid');
+  const elSpDetail = document.getElementById('species-detail');
   const elLog = document.getElementById('log');
   const elViz = document.getElementById('viz');
   const tabMix = document.getElementById('tab-mix');
@@ -27,36 +30,93 @@
     elStats.innerHTML = lines.join('\n');
   }
 
-  function colorClass(i){ return i===0? 'fg-grass' : i===1? 'fg-hop' : i===2? 'fg-frog' : i===3? 'fg-snake' : 'fg-eagle'; }
+  function colorClass(i){
+    return i===0? 'fg-grass'   // Plants
+         : i===1? 'fg-hop'     // Rabbits
+         : i===2? 'fg-insect'  // Insects
+         : i===3? 'fg-frog'    // Foxes
+         : i===4? 'fg-bird'    // Birds
+         : 'fg-eagle';         // Eagles
+  }
 
   function renderSpecies(){
-    const lines = [];
-    lines.push(`<span class="fg-dim">${headerRow()}</span>`);
-    for (let i=0;i<state.sp.length;i++){
-      const sp = state.sp[i];
-      const sel = (i === state.selected) ? '->' : '  ';
-      const row = `${sel} ${padRight(sp.name,14)} ${padLeft(fmt(sp.pop,1),7)} ${padLeft(fmt(sp.last_gr,3),8)} ${padLeft(fmt(sp.last_dr,3),8)} ${padLeft(fmt(sp.last_g,2),8)} ${padLeft(fmt(sp.last_d,2),8)}`;
-      lines.push(`<span class="${colorClass(i)} sp-row" data-index="${i}">${row}</span>`);
+    // Build grid of species cards (3x2)
+    if (!elSpGrid || !elSpDetail) {
+      // Fallback to old list if grid not available
+      if (elSpecies){ elSpecies.textContent = state.sp.map(s=>`${s.name} ${fmt(s.pop,1)}`).join('\n'); }
+      return;
     }
-    elSpecies.innerHTML = lines.join('\n');
-    // Click handling for logging stats (delegate, bind once)
-    if (!elSpecies.dataset.clickbound){
-      elSpecies.addEventListener('click', (ev) => {
-        const target = ev.target.closest('.sp-row');
-        if (!target) return;
-        const idx = +target.getAttribute('data-index');
+    elSpGrid.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    // Ensure exactly 6 entries (pad with empty placeholders; cap at 6)
+    const totalSlots = 6;
+    const items = state.sp.slice(0, totalSlots);
+    for (let i = 0; i < totalSlots; i++){
+      const sp = items[i];
+      const card = document.createElement('div');
+      if (sp){
+        const selCls = (i === state.selected ? ' selected' : '');
+        card.className = `sp-card ${colorClass(i)}${selCls}`;
+        card.setAttribute('data-index', String(i));
+        card.innerHTML = `<div class="sp-name">${sp.name}</div><div class="sp-total">tot ${fmt(Math.round(sp.pop),0)}</div>`;
+      } else {
+        card.className = 'sp-card empty';
+        card.innerHTML = `<div class="sp-name">—</div><div class="sp-total">&nbsp;</div>`;
+      }
+      frag.appendChild(card);
+    }
+    elSpGrid.appendChild(frag);
+    // Detail for selected species
+    renderSpeciesDetail(state.selected ?? 0);
+    // Click handling via delegation
+    if (!elSpGrid.dataset.clickbound){
+      elSpGrid.addEventListener('click', (ev) => {
+        ev.preventDefault(); ev.stopPropagation();
+        const t = ev.target.closest('.sp-card');
+        if (!t || t.classList.contains('empty')) return;
+        const idx = +t.getAttribute('data-index');
+        if (Number.isNaN(idx)) return;
+        state.selected = idx;
+        elSpGrid.dataset.selected = String(idx);
+        // toggle selected class
+        elSpGrid.querySelectorAll('.sp-card').forEach(card => card.classList.remove('selected'));
+        t.classList.add('selected');
+        // update detail only
+        renderSpeciesDetail(idx);
+        // log selection
         const s = state.sp[idx];
         const eats = s.eats || '—';
         const msg = `${s.name}: eats ${eats} | eat ${fmt(s.last_g,2)}/step | breed ${fmt(s.growth,2)} | death ${fmt(s.death,2)} | maxAge ${s.maxAge ?? '—'} | pop ${fmt(s.pop,1)} | gRate ${fmt(s.last_gr,3)} | dRate ${fmt(s.last_dr,3)}`;
-        // Append to in-app log and render
         state.log.push(msg);
         if (state.log.length > 200) state.log.shift();
         renderLog();
-        // Auto-scroll log to bottom
         elLog.scrollTop = elLog.scrollHeight;
       });
-      elSpecies.dataset.clickbound = '1';
+      elSpGrid.dataset.clickbound = '1';
     }
+  }
+
+  function renderSpeciesDetail(idx){
+    const s = state.sp[idx] || state.sp[0];
+    if (!s || !elSpDetail) return;
+    const eats = s.eats || '—';
+    const nameLine = `<span class="${colorClass(idx)}">Name: ${s.name}</span>`;
+    const col1 = [
+      nameLine,
+      `total pop: ${fmt(Math.round(s.pop),0)}`,
+      `eats: ${eats}`,
+      `max age: ${s.maxAge ?? '—'}`,
+    ].join('\n');
+    const col2 = [
+      `breed rate: ${fmt(s.last_g,2)} / step`,
+      `death rate: ${fmt(s.last_d,2)} / step`,
+      `(breed depends on energy: prey/sun)`,
+      `(death depends on predators/old age)`,
+    ].join('\n');
+    elSpDetail.innerHTML = `
+      <div class="col"><h4>Info</h4><pre class="sp-pre">${col1}</pre></div>
+      <div class="col"><h4>Rates</h4><pre class="sp-pre">${col2}</pre></div>
+    `;
   }
 
   function renderLog(){
@@ -95,7 +155,7 @@
       let colored = '';
       for (let i=0;i<b.length;i++){
         const ch = b[i];
-        const cls = ch==='.'? 'fg-grass' : ch==='r'? 'fg-hop' : ch==='f'? 'fg-frog' : ch==='w'? 'fg-snake' : 'fg-eagle';
+        const cls = ch==='.'? 'fg-grass' : ch==='r'? 'fg-hop' : ch==='i'? 'fg-insect' : ch==='f'? 'fg-frog' : ch==='b'? 'fg-bird' : 'fg-eagle';
         colored += `<span class="${cls}">${ch}</span>`;
       }
       lines.push(colored);
@@ -126,7 +186,7 @@
     // height excludes title row; draw height rows of graph using characters per species
     // We'll use symbols and color by species
     const chars = ['.','r','f','w','b'];
-    const clsFor = (i)=> i===0? 'fg-grass' : i===1? 'fg-hop' : i===2? 'fg-frog' : i===3? 'fg-snake' : 'fg-eagle';
+    const clsFor = (i)=> i===0? 'fg-grass' : i===1? 'fg-hop' : i===2? 'fg-insect' : i===3? 'fg-frog' : i===4? 'fg-bird' : 'fg-eagle';
 
     // Create grid filled with spaces
     const grid = Array.from({length: height}, ()=>Array(cols).fill(' '));
@@ -169,7 +229,7 @@
     }
 
     // Legend
-    lines.push(`<span class="fg-dim">Legend:</span> <span class="fg-grass">.</span> Plants  <span class="fg-hop">r</span> Rabbits  <span class="fg-frog">f</span> Foxes  <span class="fg-snake">w</span> Wolves  <span class="fg-eagle">b</span> Bears`);
+    lines.push(`<span class="fg-dim">Legend:</span> <span class="fg-grass">.</span> Plants  <span class="fg-hop">r</span> Rabbits  <span class="fg-insect">i</span> Insects  <span class="fg-frog">f</span> Foxes  <span class="fg-bird">b</span> Birds  <span class="fg-eagle">e</span> Eagles`);
     elViz.innerHTML = lines.join('\n');
   }
 
