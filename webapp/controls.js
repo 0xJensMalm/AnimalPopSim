@@ -5,12 +5,23 @@
   const baseMs = P.speedMs || 50;
 
   window.addEventListener('keydown', (e) => {
-    if (e.key === ' '){ state.paused = !state.paused; e.preventDefault(); return; }
-    if (e.key === 'r'){ state.sp = window.PopSim.state.sp = window.PopSim.state.sp.map((s,i)=>({
-      name: s.name, sym: s.sym,
-      pop: [300,80,20,10,5][i], growth: [0.45,0.28,0.20,0.18,0.16][i], death: [0.04,0.09,0.11,0.12,0.13][i],
-      last_g:0,last_d:0,last_gr:0,last_dr:0
-    })); state.sun = 200; state.t = 0; state.log = []; state.hist = []; return; }
+    if (e.key === ' '){ state.paused = !state.paused; if (typeof updatePauseLabel === 'function') updatePauseLabel(); e.preventDefault(); return; }
+    if (e.key === 'r'){
+      const pops   = [320, 70, 90, 18, 22, 8];
+      const growth = [0.50,0.26,0.30,0.20,0.22,0.18];
+      const death  = [0.04,0.10,0.10,0.11,0.11,0.12];
+      state.sp = window.PopSim.state.sp = window.PopSim.state.sp.map((s,i)=>({
+        name: s.name,
+        sym: s.sym,
+        maxAge: s.maxAge,
+        eats: s.eats,
+        pop: pops[i] ?? s.pop,
+        growth: growth[i] ?? s.growth,
+        death: death[i] ?? s.death,
+        last_g:0,last_d:0,last_gr:0,last_dr:0
+      }));
+      state.sun = 200; state.t = 0; state.log = []; state.hist = []; return;
+    }
     if (e.key === 'Tab'){ state.selected = (state.selected + 1) % state.sp.length; e.preventDefault(); return; }
     if (e.key === 'ArrowUp'){ state.selected = (state.selected - 1 + state.sp.length) % state.sp.length; return; }
     if (e.key === 'ArrowDown'){ state.selected = (state.selected + 1) % state.sp.length; return; }

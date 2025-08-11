@@ -11,11 +11,10 @@
     <header class="header">
       <div class="title">PopSim</div>
     </header>
-
-    <main class="layout">
-      <div class="top-row">
-        <section class="panel">
-          <h3>Stats</h3>
+    <main class="layout two-col">
+      <div class="col-left">
+        <section class="panel panel-controls">
+          <h3>Controls</h3>
           <div class="ctrls" id="sim-ctrls">
             <button id="btn-pause" class="btn">Pause</button>
             <span class="sep"></span>
@@ -23,21 +22,29 @@
             <button id="btn-2x" class="btn">2x</button>
             <button id="btn-5x" class="btn">5x</button>
           </div>
+        </section>
+
+        <section class="panel panel-stats">
+          <h3>Stats</h3>
           <pre id="stats"></pre>
         </section>
-        <section class="panel">
+
+        <section class="panel panel-species">
           <h3>Species</h3>
-          <div id="species-panel" class="sp-panel">
-            <div id="species-grid" class="sp-grid"></div>
-            <div id="species-detail" class="sp-detail"></div>
+          <div id="species-input" class="sp-inputbar">
+            <span class="fg-grass">Enter: Input 10</span>
           </div>
+          <pre id="species-list" class="sp-pre"></pre>
+          <pre id="species-info" class="sp-pre"></pre>
         </section>
-        <section class="panel">
+
+        <section class="panel panel-log">
           <h3>Log</h3>
           <pre id="log"></pre>
         </section>
       </div>
-      <section class="panel insights">
+
+      <section class="panel panel-viz">
         <div class="tabs">
           <button class="tab active" id="tab-mix">Mix</button>
           <button class="tab" id="tab-graph">Graph</button>

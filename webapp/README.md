@@ -4,7 +4,7 @@ A minimal, dependency-free ASCII web app version of PopSim. No frameworks, no bu
 
 - 100% ASCII (monospace)
 - Zero external dependencies
-- Single-page app: `index.html` + `main.js`
+- Single-page app with split files: `index.html`, `styles.css`, `sim.js`, `ui.js`, `controls.js`, `main.js`
 - Keyboard controls closely mirror the TUI version
 
 ## Quick Start
@@ -29,8 +29,14 @@ python3 -m http.server 8080
 - - / +: slower/faster
 - n: toggle noise
 
+## Layout
+
+- Two-column layout:
+  - Left (1/3 width): Controls (~10% height), Stats (~20%), Species (list + input + info, ~50%), Log (~20%).
+  - Right (2/3 width): Visualization area with tabs (Mix, Graph).
+- Mix tab shows an ASCII bar proportional to species mix; Graph tab shows an ASCII stacked graph over recent history.
+- The log prints a periodic rate summary.
+
 ## Notes
 
 - Rendering is ASCII in a <pre> area sized to about 100 characters width.
-- The right panel shows a simple symbol bar of the current mix.
-- The log prints a 5-second rate summary (no critical-low spam).
